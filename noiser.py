@@ -34,16 +34,18 @@ def add_salt_pepper(image, salt_percent, noise_density):
 
 
 # ___ Main Code ___
-path = input("Enter path to image file: ")
+path = input("Enter path to image file: ")  # file path to image
 
-img = Image.open(path)
+img = Image.open(path)  # instance of PIL Image object
 
+# prints available modes for user to choose from
 print("Mode Description:\n"
       "(0) --> Salt and Pepper\n"
       "(1) --> Gaussian Noise\n"
       "(2) --> Poisson Noise\n"
       "(3) --> Speckle Noise\n")
 
+# only permits integer inputs for mode
 while True:
     try:
         mode = int(input("Enter desired mode: "))
@@ -51,6 +53,7 @@ while True:
     except ValueError:
         print("Mode is integer")
 
+# each if statement contains the specific parameters needed for each noise type
 if mode == 0:
     slt_pct = float(input("Enter salt noise percentage: "))
     dns = float(input("Enter noise density: "))
@@ -60,5 +63,7 @@ if mode == 0:
 else:
     save_output = False
 
+# saves noisy image file if save_output is True
 if save_output:
     noisy_image.save('output.jpg')
+    
