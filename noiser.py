@@ -65,5 +65,6 @@ else:
 
 # saves noisy image file if save_output is True
 if save_output:
-    noisy_image.save('output.jpg')
-    
+    noisy_image = noisy_image.resize((int(0.25*noisy_image.width), int(0.25*noisy_image.height)), resample=0)
+    noisy_image = noisy_image.convert("L")
+    noisy_image.save('noisy.jpg')
