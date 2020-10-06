@@ -12,3 +12,7 @@ combobox_font_size = 10
 
 supported_files = [('JPEG Files', '*.jpg*'), ('NEF Raw Files', '*.NEF*'), ('TIF Files', '*.tif*')]
 default_save_directory = 'C:\\'
+
+# ___ Salt & Pepper Parameters ___
+neighborhood_dim = 3  # side length of neighborhood (in pixels)
+tolerance = 1  # threshold for inserting median value for noisy pixel
