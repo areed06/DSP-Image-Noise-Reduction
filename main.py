@@ -33,6 +33,7 @@ class NoiseReduction:
         if self.file_path:
             print(f"File Opened: {self.file_path}")
             self.raw_image = Image.open(self.file_path)  # PIL image
+            self.raw_image = self.raw_image.convert("L")  # convert to grayscale to simplify de-noise
             self.raw_data = asarray(self.raw_image)  # numpy array of raw image data
             self.copy_raw_data = deepcopy(self.raw_data)
 
@@ -46,7 +47,7 @@ class NoiseReduction:
         selected_mode = denoise_type_select.get()
 
         if selected_mode == "Salt & Pepper" and settings.mode_activations[selected_mode] == 1:
-            salt_pepper_denoise(self.copy_raw_data)
+            self.copy_raw_data = salt_pepper_denoise(self.copy_raw_data)
             save_output = True
 
         elif selected_mode == "Gaussian" and settings.mode_activations[selected_mode] == 1:
@@ -64,6 +65,7 @@ class NoiseReduction:
 
         if save_output:
             less_noisy_image = Image.fromarray(self.copy_raw_data)
+            less_noisy_image.save('output.jpg')  # TESTING ONLY
             # insert instructions for saving file here
             # need to get desired directory and file name for output file
 
