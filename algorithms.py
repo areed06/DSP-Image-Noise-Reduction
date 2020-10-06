@@ -35,5 +35,3 @@ def salt_pepper_denoise(img):
     print("De-noising complete!")
 
     return img
-
-# This is a test of GitHub
