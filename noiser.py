@@ -34,12 +34,18 @@ def add_salt_pepper(image, salt_percent, noise_density):
 
 
 # ___ Main Code ___
-path = input("Enter path to image file: ")  # file path to image
+while True:
+    path = input("Enter path to image file: ")  # file path to image
 
-img = Image.open(path)  # instance of PIL Image object
+    try:
+        img = Image.open(path)  # instance of PIL Image object
+        break
+
+    except OSError or FileNotFoundError:
+        print("File not found.")
 
 # prints available modes for user to choose from
-print("Mode Description:\n"
+print("\nMode Description:\n"
       "(0) --> Salt and Pepper\n"
       "(1) --> Gaussian Noise\n"
       "(2) --> Poisson Noise\n"
@@ -56,15 +62,33 @@ while True:
 # each if statement contains the specific parameters needed for each noise type
 if mode == 0:
     slt_pct = float(input("Enter salt noise percentage: "))
-    dns = float(input("Enter noise density: "))
+    dns = float(input("Enter noise density: \n"))
 
+    # converts numpy array back into PIL image
     noisy_image = Image.fromarray(add_salt_pepper(img, slt_pct, dns))
     save_output = True
+
 else:
     save_output = False
 
 # saves noisy image file if save_output is True
-if save_output:
+if save_output and 'noisy_image' in locals():
     noisy_image = noisy_image.resize((int(0.25*noisy_image.width), int(0.25*noisy_image.height)), resample=0)
     noisy_image = noisy_image.convert("L")
-    noisy_image.save('noisy.jpg')
+
+    directory = input("Enter desired directory: ")
+
+    original_dir = os.getcwd()
+
+    while True:
+        try:
+            os.chdir(directory)
+            break
+
+        except FileNotFoundError:
+            print("Invalid directory.")
+
+    output_file = input("Enter name of output file: ")
+    noisy_image.save(output_file)
+
+    os.chdir(original_dir)
