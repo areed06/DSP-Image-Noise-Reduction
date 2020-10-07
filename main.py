@@ -20,6 +20,7 @@ class NoiseReduction:
         self.raw_image = None
         self.raw_data = None
         self.copy_raw_data = None
+        self.save_directory = ""
 
     def open_raw_image(self):
         """User searches and selects image file to be analyzed, the file is then opened"""
@@ -40,8 +41,36 @@ class NoiseReduction:
         else:
             print("No file was opened.")
 
+    def directory_select(self):
+        """Opens window to select desired file destination"""
+
+        self.save_directory = filedialog.askdirectory(initialdir=f'C:\\Users\\{user}\\Documents',
+                                                      title='Select Destination Folder')
+
+    def file_save_config(self):
+        """Pop-up window which allows user to enter file destination and file name"""
+
+        # Toplevel widget
+        save_config = tk.Toplevel()
+
+        # Widgets to be added
+        dest_dir = ttk.Button(save_config, text='Select Folder', command=self.directory_select)
+        dest_dir.grid(row=0, column=0, padx=10, pady=10)
+
+        file_name = ttk.Entry(save_config)  # input for file name
+        file_name.grid(row=1, column=0, padx=10, pady=10)
+
+        proceed = ttk.Button(save_config, text='Proceed')  # to proceed with de-noising
+        proceed.grid(row=2, column=0, padx=10, pady=10)
+
+        status = ttk.Label(save_config, text='Processing...')  # status indicator
+        status.grid(row=0, column=1, padx=10, pady=10)
+
+        folder_path = ttk.Label(save_config, text=self.save_directory)
+        folder_path.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+
     def apply_denoise(self):
-        """Applies selected denoising algorithm to image."""
+        """Applies selected de-noising algorithm to image."""
 
         # checks for selected mode in ComboBox widget
         selected_mode = denoise_type_select.get()
