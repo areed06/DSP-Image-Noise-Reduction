@@ -17,6 +17,9 @@ def salt_pepper_denoise(img):
     for y in range(num_rings, y_pixels - num_rings):
         for x in range(num_rings, x_pixels - num_rings):
 
+            # Idea for optimization:
+            # - could using stand. dev. help?
+
             median_of_these = list()  # list to hold all pixel values in neighborhood
 
             # adds each value in the neighborhood to the list of neighborhood values
@@ -28,7 +31,7 @@ def salt_pepper_denoise(img):
             median_val = int(np.median(median_of_these))
 
             # changes central pixel value if it differs too greatly from the median
-            if np.absolute(img[y, x]) > settings.tolerance:
+            if np.absolute(img[y, x] - median_val) > settings.tolerance:
                 img[y, x] = median_val
 
     # for debugging
