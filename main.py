@@ -75,19 +75,29 @@ class NoiseReduction:
 
         # de-noising functions
         def blocking_code():
+            start_time = time.time()
+
+            # status indicator goes red to reflect system processing state
+            status['background'] = 'red'
+            status['text'] = 'Processing...'
+
             if selected_mode == "Salt & Pepper" and settings.mode_activations[selected_mode] == 1:
+                save_output = True
                 self.copy_raw_data = salt_pepper_denoise(self.copy_raw_data)
 
             elif selected_mode == "Gaussian" and settings.mode_activations[selected_mode] == 1:
                 # insert algorithm function
+                save_output = True
                 print("Gaussian")
 
             elif selected_mode == "Poisson" and settings.mode_activations[selected_mode] == 1:
                 # insert algorithm function
+                save_output = True
                 print("Poisson")
 
             elif selected_mode == "Adam's Custom Algorithm" and settings.mode_activations[selected_mode] == 1:
                 # insert algorithm function
+                save_output = True
                 print("Custom")
 
             else:
@@ -95,6 +105,19 @@ class NoiseReduction:
                 print("Invalid mode or no mode was selected.")
                 status['background'] = 'white'  # default status color
                 status['text'] = 'Status'  # default status text
+
+            # indicates de-noising has successfully completed
+            status['background'] = 'green'
+            status['text'] = 'Complete!'
+
+            elapsed = round((time.time() - start_time), 2)
+            print(f"Process complete at time {elapsed}s")
+
+            if save_output:
+                less_noisy_image = Image.fromarray(self.copy_raw_data)
+                less_noisy_image.save('output.jpg')  # TESTING ONLY
+                # insert instructions for saving file here
+                # need to get desired directory and file name for output file
 
         # checks for selected mode in ComboBox widget
         selected_mode = denoise_type_select.get()
@@ -109,19 +132,6 @@ class NoiseReduction:
             # creates new thread to execute de-noising through
             denoise_thread = threading.Thread(target=blocking_code, daemon=True)
             denoise_thread.start()
-
-            # status indicator goes red to reflect system processing state
-            status['background'] = 'red'
-            status['text'] = 'Processing...'
-
-            # indicates de-noising has successfully completed
-            # status['background'] = 'green'
-            # status['text'] = 'Complete!'
-
-            less_noisy_image = Image.fromarray(self.copy_raw_data)
-            less_noisy_image.save('output.jpg')  # TESTING ONLY
-            # insert instructions for saving file here
-            # need to get desired directory and file name for output file
 
 
 # ___ User Interface Code ___
