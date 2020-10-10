@@ -1,11 +1,12 @@
 # ___ Importing Modules ___
 import tkinter as tk
 from tkinter import ttk, filedialog
-import numpy as np
 from numpy import asarray
 from PIL import Image
 from copy import deepcopy
 import os
+import time
+import threading
 import getpass
 
 # user-created modules
@@ -21,6 +22,7 @@ class NoiseReduction:
         self.raw_data = None
         self.copy_raw_data = None
         self.save_directory = ""
+        self.raw_data_exists = False
 
     def open_raw_image(self):
         """User searches and selects image file to be analyzed, the file is then opened"""
@@ -37,8 +39,10 @@ class NoiseReduction:
             self.raw_image = self.raw_image.convert("L")  # convert to grayscale to simplify de-noise
             self.raw_data = asarray(self.raw_image)  # numpy array of raw image data
             self.copy_raw_data = deepcopy(self.raw_data)
+            self.raw_data_exists = True
 
         else:
+            self.raw_data_exists = False
             print("No file was opened.")
 
     def directory_select(self):
@@ -60,11 +64,8 @@ class NoiseReduction:
         file_name = ttk.Entry(save_config)  # input for file name
         file_name.grid(row=1, column=0, padx=10, pady=10)
 
-        proceed = ttk.Button(save_config, text='Proceed')  # to proceed with de-noising
-        proceed.grid(row=2, column=0, padx=10, pady=10)
-
-        status = ttk.Label(save_config, text='Processing...')  # status indicator
-        status.grid(row=0, column=1, padx=10, pady=10)
+        save = ttk.Button(save_config, text='Proceed')  # to proceed with de-noising
+        save.grid(row=2, column=0, padx=10, pady=10)
 
         folder_path = ttk.Label(save_config, text=self.save_directory)
         folder_path.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
@@ -72,27 +73,51 @@ class NoiseReduction:
     def apply_denoise(self):
         """Applies selected de-noising algorithm to image."""
 
+        # de-noising functions
+        def blocking_code():
+            if selected_mode == "Salt & Pepper" and settings.mode_activations[selected_mode] == 1:
+                self.copy_raw_data = salt_pepper_denoise(self.copy_raw_data)
+
+            elif selected_mode == "Gaussian" and settings.mode_activations[selected_mode] == 1:
+                # insert algorithm function
+                print("Gaussian")
+
+            elif selected_mode == "Poisson" and settings.mode_activations[selected_mode] == 1:
+                # insert algorithm function
+                print("Poisson")
+
+            elif selected_mode == "Adam's Custom Algorithm" and settings.mode_activations[selected_mode] == 1:
+                # insert algorithm function
+                print("Custom")
+
+            else:
+                save_output = False
+                print("Invalid mode or no mode was selected.")
+                status['background'] = 'white'  # default status color
+                status['text'] = 'Status'  # default status text
+
         # checks for selected mode in ComboBox widget
         selected_mode = denoise_type_select.get()
 
-        if selected_mode == "Salt & Pepper" and settings.mode_activations[selected_mode] == 1:
-            self.copy_raw_data = salt_pepper_denoise(self.copy_raw_data)
-            save_output = True
+        # checks to ensure raw data file exists
+        if not self.raw_data_exists:
+            print("Cannot apply de-noise without image file...")
+            return
 
-        elif selected_mode == "Gaussian" and settings.mode_activations[selected_mode] == 1:
-            save_output = True
+        if selected_mode in settings.available_modes:
 
-        elif selected_mode == "Poisson" and settings.mode_activations[selected_mode] == 1:
-            save_output = True
+            # creates new thread to execute de-noising through
+            denoise_thread = threading.Thread(target=blocking_code, daemon=True)
+            denoise_thread.start()
 
-        elif selected_mode == "Adam's Custom Algorithm" and settings.mode_activations[selected_mode] == 1:
-            save_output = True
+            # status indicator goes red to reflect system processing state
+            status['background'] = 'red'
+            status['text'] = 'Processing...'
 
-        else:
-            print("Invalid mode or no mode was selected.")
-            save_output = False
+            # indicates de-noising has successfully completed
+            # status['background'] = 'green'
+            # status['text'] = 'Complete!'
 
-        if save_output:
             less_noisy_image = Image.fromarray(self.copy_raw_data)
             less_noisy_image.save('output.jpg')  # TESTING ONLY
             # insert instructions for saving file here
@@ -134,6 +159,11 @@ denoise_action.grid(row=0, column=2, padx=10, pady=10)
 # Button for accessing user alterable settings
 user_settings = ttk.Button(root, text='Settings', style='my.TButton')
 user_settings.grid(row=0, column=0, padx=10, pady=10, sticky='W')
+
+# Label to denote status of de-noise
+status = ttk.Label(root, width=15, borderwidth=1, background='white', text="Status")
+status.grid(row=0, column=1, padx=10, pady=10, sticky='E')
+status.configure(anchor='center')
 
 # label for before image
 before_label = ttk.Label(root, text='Image Before')
