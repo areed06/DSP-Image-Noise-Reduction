@@ -50,6 +50,8 @@ def salt_pepper_denoise(img):
         return changes
 
     def parallel_adjustments(adjustments):
+        """This function changes the pixel values at the locations specified in the adjustments parameter"""
+
         for element in adjustments:
             img[element[0], element[1]] = element[2]
 
@@ -57,11 +59,12 @@ def salt_pepper_denoise(img):
         p_1 = math.floor(strand / thread_dim)  # represents parity
         p_2 = strand % thread_dim  # represents sub_parity
 
+        # starts threads to execute each set of calculations
         with futures.ThreadPoolExecutor(max_workers=thread_dim**2) as executor:
-
             process_threads.append(executor.submit(parallel_processing, p_1, p_2))
             all_changes.append(process_threads[-1].result())
 
+    # starts threads to make adjustments to the input image
     for thread in range(16):
         with futures.ThreadPoolExecutor(max_workers=thread_dim**2) as executor:
             adjust_threads.append(executor.submit(parallel_adjustments, all_changes[thread]))
