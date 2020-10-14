@@ -22,13 +22,14 @@ def add_salt_pepper(image, salt_percent, noise_density):
     num_pepper = np.ceil(noise_density*data.shape[0]*percent_pepper)
 
     for row in copy_data:
+
         # adding salt noise
         coords = [np.random.randint(0, column-1, int(num_salt)) for column in row.shape]
-        row[coords, :] = 255
+        row[tuple(coords)] = 255
 
         # adding pepper noise
         coords = [np.random.randint(0, column-1, int(num_pepper)) for column in row.shape]
-        row[coords, :] = 0
+        row[tuple(coords)] = 0
 
     return copy_data
 
@@ -62,7 +63,7 @@ while True:
 # each if statement contains the specific parameters needed for each noise type
 if mode == 0:
     slt_pct = float(input("Enter salt noise percentage: "))
-    dns = float(input("Enter noise density: \n"))
+    dns = float(input("Enter noise density: "))
 
     # converts numpy array back into PIL image
     noisy_image = Image.fromarray(add_salt_pepper(img, slt_pct, dns))
@@ -73,22 +74,30 @@ else:
 
 # saves noisy image file if save_output is True
 if save_output and 'noisy_image' in locals():
-    noisy_image = noisy_image.resize((int(0.25*noisy_image.width), int(0.25*noisy_image.height)), resample=0)
+    # use this resizing code if input image is too large
+    # noisy_image = noisy_image.resize((int(0.5*noisy_image.width), int(0.5*noisy_image.height)), resample=0)
     noisy_image = noisy_image.convert("L")
-
-    directory = input("Enter desired directory: ")
 
     original_dir = os.getcwd()
 
+    # changes directory or gives proper error message
     while True:
         try:
+            directory = input("\nEnter desired directory: ")
             os.chdir(directory)
             break
 
         except FileNotFoundError:
             print("Invalid directory.")
 
-    output_file = input("Enter name of output file: ")
-    noisy_image.save(output_file)
+    # avoids errors where file name is missing image file extension (aka .jpg, etc)
+    while True:
+        try:
+            output_file = input("Enter name of output file: ")
+            noisy_image.save(output_file)
+            break
+
+        except ValueError:
+            print("Invalid file name or format")
 
     os.chdir(original_dir)
