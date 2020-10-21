@@ -10,7 +10,7 @@ import threading
 import getpass
 
 # user-created modules
-import settings
+from settings import Settings
 from algorithms import *
 
 
@@ -136,6 +136,7 @@ class NoiseReduction:
 
 # ___ User Interface Code ___
 denoise = NoiseReduction()  # creates instance of NoiseReduction class
+settings = Settings()
 
 root = tk.Tk()  # main root
 root.title(f"Image De-Noise v{settings.build_num}")
