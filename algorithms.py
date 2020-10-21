@@ -65,7 +65,7 @@ def salt_pepper_denoise(img):
             all_changes.append(process_threads[-1].result())
 
     # starts threads to make adjustments to the input image
-    for thread in range(16):
+    for thread in range(thread_dim ** 2):
         with futures.ThreadPoolExecutor(max_workers=thread_dim**2) as executor:
             adjust_threads.append(executor.submit(parallel_adjustments, all_changes[thread]))
 
