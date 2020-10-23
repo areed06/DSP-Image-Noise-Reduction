@@ -52,11 +52,13 @@ def add_gaussian(image, st_dev, average):
     for y in range(copy_data.shape[0]):
         for x in range(copy_data.shape[1]):
 
+            # amount of noise to be added
             noise_value = noise_map.pop()
 
             noisy_pixel = copy_data[y, x] + noise_value
 
             # add noise value to the pixel value
+            # limits pixel values to 0-255 and prevents "wrapping"
             if 0 <= noisy_pixel <= 255:
                 copy_data[y, x] = noisy_pixel
             elif noisy_pixel < 0:
@@ -136,6 +138,7 @@ elif mode == 1:
     save_output = True
 
 else:
+    noisy_image = None
     save_output = False
 
 # saves noisy image file if save_output is True
@@ -148,11 +151,13 @@ if save_output and 'noisy_image' in locals():
         try:
             resize = float(input("Enter resize factor: "))
 
+            # limit for resize set to 2 to avoid excessive file sizes
             if resize != 1 and 0 < resize < 2:
                 noisy_image = noisy_image.resize((int(resize*noisy_image.width),
                                                   int(resize*noisy_image.height)), resample=0)
                 break
 
+            # no change needed if resize=1
             elif resize == 1:
                 break
 

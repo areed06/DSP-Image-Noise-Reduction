@@ -22,6 +22,7 @@ class NoiseReduction:
         self.raw_data = None
         self.copy_raw_data = None
         self.save_directory = ""
+        self.save_path = ""
         self.raw_data_exists = False
 
     def open_raw_image(self):
@@ -45,30 +46,53 @@ class NoiseReduction:
             self.raw_data_exists = False
             print("No file was opened.")
 
-    def directory_select(self):
-        """Opens window to select desired file destination"""
+    def save_output_file(self):
+        """Pop-up window which allows user to save output file"""
 
-        self.save_directory = filedialog.askdirectory(initialdir=f'C:\\Users\\{user}\\Documents',
-                                                      title='Select Destination Folder')
+        def directory_select():
+            """Opens window to select desired file destination"""
 
-    def file_save_config(self):
-        """Pop-up window which allows user to enter file destination and file name"""
+            self.save_directory = filedialog.askdirectory(initialdir=f'C:\\Users\\{user}\\Documents',
+                                                          title='Select Destination Folder')
+
+            folder_path["text"] = self.save_directory
+
+        def proceed_with_save():
+            """Takes user's directory and file name and saves output"""
+
+            try:
+                self.save_path = self.save_directory + "\\" + file_name.get()
+
+            except NameError:
+                print("Unable to create save path.")
+                return  # nothing happens file is improper
+
+            try:
+                less_noisy_image = Image.fromarray(self.copy_raw_data)
+                less_noisy_image.save(self.save_path)
+
+            except ValueError:
+                print("Unable to save output.")
+                return
 
         # Toplevel widget
         save_config = tk.Toplevel()
 
-        # Widgets to be added
-        dest_dir = ttk.Button(save_config, text='Select Folder', command=self.directory_select)
-        dest_dir.grid(row=0, column=0, padx=10, pady=10)
+        # Button for selecting directory
+        dest_dir = ttk.Button(save_config, text='Select Folder', command=directory_select)
+        dest_dir.grid(row=0, column=0, padx=10, pady=10, sticky="WE")
 
+        # file name entry
         file_name = ttk.Entry(save_config)  # input for file name
-        file_name.grid(row=1, column=0, padx=10, pady=10)
+        file_name.grid(row=1, column=0, padx=10, pady=10, sticky="WE")
 
-        save = ttk.Button(save_config, text='Proceed')  # to proceed with de-noising
-        save.grid(row=2, column=0, padx=10, pady=10)
+        # proceed button
+        save = ttk.Button(save_config, text='Proceed', command=proceed_with_save)  # proceed with de-noising
+        save.grid(row=2, column=0, padx=10, pady=10, sticky="WE")
 
+        # label to show path to directory
         folder_path = ttk.Label(save_config, text=self.save_directory)
-        folder_path.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+        folder_path.grid(row=3, column=0, padx=10, pady=10, sticky="WE")
 
     def apply_denoise(self):
         """Applies selected de-noising algorithm to image."""
@@ -81,9 +105,13 @@ class NoiseReduction:
             status['background'] = 'red'
             status['text'] = 'Processing...'
 
+            # disables buttons to avoid simultaneous de-noising
+            file_input["state"] = "disabled"
+            denoise_action["state"] = "disabled"
+
             if selected_mode == "Salt & Pepper" and settings.mode_activations[selected_mode] == 1:
                 save_output = True
-                self.copy_raw_data = salt_pepper_denoise(self.copy_raw_data)
+                self.copy_raw_data = salt_pepper_denoise(self.copy_raw_data, settings)
 
             elif selected_mode == "Gaussian" and settings.mode_activations[selected_mode] == 1:
                 # insert algorithm function
@@ -106,18 +134,20 @@ class NoiseReduction:
                 status['background'] = 'white'  # default status color
                 status['text'] = 'Status'  # default status text
 
-            # indicates de-noising has successfully completed
-            status['background'] = 'green'
-            status['text'] = 'Complete!'
-
+            # total time taken to de-noise image
             elapsed = round((time.time() - start_time), 2)
             print(f"Process complete at time {elapsed}s")
 
+            # re-enables buttons
+            file_input["state"] = "normal"
+            denoise_action["state"] = "normal"
+
             if save_output:
-                less_noisy_image = Image.fromarray(self.copy_raw_data)
-                less_noisy_image.save('output.jpg')  # TESTING ONLY
-                # insert instructions for saving file here
-                # need to get desired directory and file name for output file
+                # indicates de-noising has successfully completed
+                status['background'] = 'green'
+                status['text'] = 'Complete!'
+
+                self.save_output_file()
 
         # checks for selected mode in ComboBox widget
         selected_mode = denoise_type_select.get()
