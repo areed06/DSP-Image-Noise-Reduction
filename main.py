@@ -13,7 +13,6 @@ from settings import Settings
 from algorithms import *
 
 
-# Testing
 # ___ Functions ___
 class NoiseReduction:
     def __init__(self):
