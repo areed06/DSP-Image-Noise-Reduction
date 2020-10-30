@@ -1,10 +1,6 @@
-# needed to retrieve parameters for specific de-noise processes
 import numpy as np
 import math
 from concurrent import futures
-import multiprocessing as mp
-from itertools import product
-import time
 
 
 def salt_pepper_denoise(img, settings):
