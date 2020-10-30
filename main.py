@@ -4,16 +4,16 @@ from tkinter import ttk, filedialog
 from numpy import asarray
 from PIL import Image
 from copy import deepcopy
-import os
-import time
 import threading
 import getpass
+import time
 
 # user-created modules
 from settings import Settings
 from algorithms import *
 
 
+# Testing
 # ___ Functions ___
 class NoiseReduction:
     def __init__(self):
